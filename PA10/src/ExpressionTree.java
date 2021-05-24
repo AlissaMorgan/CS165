@@ -23,10 +23,35 @@ public class ExpressionTree extends ZTree {
     }
 
     public List<String> convert(Queue<String> infix) {
-        List<String> postfix = new ArrayList<>();
-        Deque<String> operators = new ArrayDeque<>(); // used as a stack
-        // YOUR CODE HERE
-        return postfix;
+        int sizeOfInfix = infix.size();
+        int counter = 0;
+        String token;
+        List<String> output = new LinkedList<>();
+        Stack<String> operator = new Stack<String>();
+        while(counter < sizeOfInfix){
+            token = infix.poll();
+            if(isInteger(token)){
+                output.add(token);
+            }else if(isOperator(token)){
+                while(!operator.isEmpty() && precedence(operator.peek()) <= precedence(token) && !(operator.peek().equals("("))){
+                    output.add(operator.pop());
+                } operator.push(token);
+            }else if(token.equals("(")){
+                operator.push(token);
+            }else if(token.equals(")")){
+                while(!operator.peek().equals("(")){
+                    output.add(operator.pop());
+                    //if no left parenthis handle expection
+                } operator.pop();
+            }
+            counter++;
+        }
+        if(!operator.isEmpty()){
+            while(!operator.isEmpty()){
+                output.add(operator.pop());
+            }
+        }
+        return (List<String>) output;
     }
 
     @Override
@@ -64,8 +89,22 @@ public class ExpressionTree extends ZTree {
      * @return {@code true}, if successful
      */
     public boolean buildRecursive(Node current, String token) {
-        // YOUR CODE HERE
-
+        boolean bool = false;
+        if(root == null){
+            root = new Node(token);
+            return true;
+        }if(current.right == null){
+            current.right = new Node(token);
+            return true;
+        }if(isOperator(current.right.token)){
+            bool = buildRecursive(current.right, token);
+            if(bool){return true;}
+        }if(current.left == null){
+            current.left = new Node(token);
+            return true;
+        }if(isOperator(current.left.token)){
+            return buildRecursive(current.left, token);
+        }
         return false;
     }
 
@@ -85,10 +124,16 @@ public class ExpressionTree extends ZTree {
      * @param current the root node
      * @return the tokens in prefix order
      */
+    String ret = "";
     public String prefixRecursive(Node current) {
         // YOUR CODE HERE
-
-        return "";
+        if(current ==  null){
+            return "";
+        }
+        ret += current.token + " ";
+        prefixRecursive(current.left);
+        prefixRecursive(current.right);
+        return ret;
     }
 
     @Override
@@ -113,10 +158,21 @@ public class ExpressionTree extends ZTree {
      * @param current
      * @return the tokens in infix order
      */
+    String infix = "";
     public String infixRecursive(Node current) {
-        // YOUR CODE HERE
-
-        return "";
+        if(current ==  null){
+            return "";
+        }
+        if(current.left != null){
+            infix += "(";
+        }
+        infixRecursive(current.left);
+        infix += current.token;
+        infixRecursive(current.right);
+        if(current.right != null){
+            infix += ")";
+        }
+        return infix;
     }
 
     @Override
@@ -134,14 +190,21 @@ public class ExpressionTree extends ZTree {
      * @param current reference to the current node (starts with root)
      * @return a String representing the tree in postfix order
      */
+    String postFix = "";
     public String postfixRecursive(Node current) {
-        // YOUR CODE HERE
-
-        return "";
+        if(current ==  null){
+            return "";
+        }
+        postfixRecursive(current.left);
+        postfixRecursive(current.right);
+        postFix += current.token + " ";
+        return postFix;
     }
 
     public int evaluate() {
-        return evaluateRecursive(root);
+        int left = 0;
+        int right = 0;
+        return evaluateRecursive(root, left, right);
     }
 
     /**
@@ -154,10 +217,48 @@ public class ExpressionTree extends ZTree {
      * @param current
      * @return
      */
-    public int evaluateRecursive(Node current) {
-        // YOUR CODE HERE
 
-        return -1;
+    String opperand = "";
+    int total;
+    public int evaluateRecursive(Node current, int left, int right) {
+        if(current ==  null){
+            return 0;
+        }if(isInteger(root.token)){
+            total += Integer.parseInt(root.token);
+        }if(current.left != null && isInteger(current.left.token)){
+            left = Integer.parseInt(current.left.token);
+        }if(current.left != null && isOperator(current.left.token)){
+            left = evaluateRecursive(current.left, left, right);
+        }if(current.right != null &&isInteger(current.right.token)) {
+            right = Integer.parseInt(current.right.token);
+        }if(current.right != null &&isOperator(current.right.token)) {
+            right = evaluateRecursive(current.right, left, right);
+        }if(isOperator(current.token)){
+            opperand = current.token;
+        }if(!opperand.equals("")){
+            switch (opperand){
+                case "*":
+                    total = left * right;
+                    break;
+                case "/":
+                    total = left/right;
+                    break;
+                case "%":
+                    total = left % right;
+                    break;
+                case "+":
+                    total = left + right;
+                    break;
+                case "-":
+                    total = left - right;
+                    break;
+                default:
+                    System.out.println("not opperand: " + opperand);
+                    break;
+            }
+            opperand = "";
+        }
+        return total;
     }
     
             // Test code for 
