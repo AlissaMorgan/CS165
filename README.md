@@ -4,7 +4,7 @@ Files from CS165
 OVERVIEW
   Object oriented concepts, assertions, inheritance, polymorphism, algorithms and data structures using Java.
   
-CONCEPTS ATTACHIEVE
+CONCEPTS ATTACHIEVED
 - Create recursive solutions using branching recursion
 - Recognize the use of Object-Oriented Programming concepts in creating classes and objects.
 - Write Black- and White-Box unit tests
